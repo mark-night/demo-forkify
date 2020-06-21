@@ -1,0 +1,37 @@
+{
+  "name": "forkify",
+  "version": "1.0.0",
+  "description": "Course exercise.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "dev": "webpack --mode development",
+    "start": "webpack-dev-server --mode development",
+    "build": "webpack --mode production"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mark-night/forkify.git"
+  },
+  "author": "Mark Ye",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mark-night/forkify/issues"
+  },
+  "homepage": "https://github.com/mark-night/forkify#readme",
+  "devDependencies": {
+    "@babel/core": "^7.10.3",
+    "@babel/preset-env": "^7.10.3",
+    "babel-loader": "^8.1.0",
+    "html-webpack-plugin": "^4.3.0",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.12",
+    "webpack-dev-server": "^3.11.0"
+  },
+  "dependencies": {
+    "core-js": "^3.6.5",
+    "regenerator-runtime": "^0.13.5"
+  }
+}

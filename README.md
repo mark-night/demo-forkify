@@ -4,6 +4,6 @@ Key concepts and practice involved:
 
 - ES6+
 
-- Modern workflow (Babel, Webpack...)
+- Modern workflow (NPM, Babel, webpack...)
 
 -
