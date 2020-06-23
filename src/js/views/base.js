@@ -3,14 +3,24 @@ export const elements = {
   searchForm: document.querySelector('form.search'),
   recipeListParent: document.querySelector('div.results'),
   recipeList: document.querySelector('ul.results__list'),
-  paginationBtnParent: document.querySelector('div.results__pages')
+  paginationBtnParent: document.querySelector('div.results__pages'),
+  recipeDetail: document.querySelector('div.recipe')
 };
 
 export const selectors = {
-  loader: 'div.loader'
+  loader: 'div.loader',
+  recipes: 'a.results__link',
+  recipeServings: 'span.recipe__info-data--people',
+  recipeIngredientCount: 'div#recipe__count-'
 };
 
-export const renderLoader = (parent) => {
+export const classStrings = {
+  recipeHighlight: 'results__link--active',
+  btnIncrease: 'btn-increase',
+  btnDecrease: 'btn-decrease'
+};
+
+export const renderLoader = parent => {
   const loader = `
     <div class="${selectors.loader.split('.')[1]}">
       <svg>

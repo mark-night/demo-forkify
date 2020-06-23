@@ -1,4 +1,4 @@
-import { elements } from './base';
+import { elements, selectors, classStrings } from './base';
 
 export const getQuery = () => {
   const allowedQueries = [
@@ -159,10 +159,19 @@ const formatStr = (str, limit = 17) => {
   return str;
 };
 
-const renderRecipe = (recipe) => {
+export const highlightCurrent = id => {
+  Array.from(document.querySelectorAll(selectors.recipes)).forEach(el => {
+    el.classList.remove(classStrings.recipeHighlight);
+  });
+  document
+    .querySelector(selectors.recipes + `[href="#${id}"]`)
+    .classList.add(classStrings.recipeHighlight);
+};
+
+const renderRecipe = recipe => {
   const html = `
     <li>
-      <a class="results__link results__link--active" href="#${recipe.recipe_id}">
+      <a class="results__link" href="#${recipe.recipe_id}">
         <figure class="results__fig">
           <img src="${recipe.image_url}" alt="${recipe.title}">
         </figure>
@@ -177,10 +186,16 @@ const renderRecipe = (recipe) => {
 };
 
 const paginationBtnsHTML = (page, type) => `
-  <button class="btn-inline results__btn--${type}"  data-goto="${type === 'prev' ? page - 1 : page + 1}">
-    <span>Page ${type === 'prev' ? (page - 1).toString() : (page + 1).toString()}</span>
+  <button class="btn-inline results__btn--${type}"  data-goto="${
+  type === 'prev' ? page - 1 : page + 1
+}">
+    <span>Page ${
+      type === 'prev' ? (page - 1).toString() : (page + 1).toString()
+    }</span>
     <svg class="search__icon">
-      <use href="img/icons.svg#icon-triangle-${type === 'prev' ? 'left' : 'right'}"></use>
+      <use href="img/icons.svg#icon-triangle-${
+        type === 'prev' ? 'left' : 'right'
+      }"></use>
     </svg>
   </button>
   `;
@@ -202,7 +217,9 @@ export const renderRecipes = (recipes, page = 1, perPage = 10) => {
   if (recipes.length / perPage >= page - 1) {
     const start = (page - 1) * perPage;
     const end = page * perPage;
-    recipes.slice(start, end).forEach((recipe) => renderRecipe(recipe));
+    recipes.slice(start, end).forEach(recipe => renderRecipe(recipe));
     renderPaginationBtns(recipes.length, page, perPage);
+    // record which page we are at
+    recipes.page = page;
   }
 };
