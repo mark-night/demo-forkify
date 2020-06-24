@@ -6,7 +6,8 @@ export const elements = {
   paginationBtnParent: document.querySelector('div.results__pages'),
   recipeDetail: document.querySelector('div.recipe'),
   shoppingCart: document.querySelector('ul.shopping__list'),
-  likesList: document.querySelector('ul.likes__list')
+  likesList: document.querySelector('ul.likes__list'),
+  likesListMenu: document.querySelector('div.likes__field')
 };
 
 export const selectors = {

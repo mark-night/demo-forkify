@@ -3,10 +3,10 @@ import Recipe from './models/Recipe';
 import Cart from './models/Cart';
 import Like from './models/Like';
 import {
-  elements,
-  classStrings,
   renderLoader,
   removeLoader,
+  elements,
+  classStrings,
   selectors
 } from './views/base';
 import * as searchView from './views/searchView';
@@ -22,7 +22,6 @@ import * as likeView from './views/likeView';
  * - Liked recipes object
  */
 const state = {};
-window.s = state;
 
 /**
  * SEARCH CONTROLLER
@@ -38,30 +37,16 @@ const searchRecipes = async () => {
     searchView.clearQuery();
     searchView.clearRecipes();
     renderLoader(elements.recipeListParent);
-    state.search = new Search(query);
+    // new instance for every query, don't bother with updating the old one
+    state.search = new Search();
     // wait Search.result to receive data
-    await state.search.getResult();
+    await state.search.getResult(query);
     removeLoader();
     if (state.search.recipes !== undefined) {
       searchView.renderRecipes(state.search.recipes);
     }
   }
 };
-
-elements.searchForm.addEventListener('submit', e => {
-  e.preventDefault(); // so page won't refresh on submit
-  searchRecipes();
-});
-
-elements.paginationBtnParent.addEventListener('click', e => {
-  // event delegation
-  const btn = e.target.closest('button');
-  if (btn) {
-    const goto = parseInt(btn.dataset.goto);
-    searchView.clearRecipes();
-    searchView.renderRecipes(state.search.recipes, goto);
-  }
-});
 
 /**
  * RECIPE CONTROLLER
@@ -71,7 +56,7 @@ const fetchRecipe = async () => {
   const id = window.location.hash.replace('#', '');
   if (id) {
     // prepare UI
-    if (state.search && state.search.containsRecipe(id)) {
+    if (state.search) {
       searchView.highlightCurrent(id);
     }
     recipeView.clearRecipe();
@@ -84,7 +69,10 @@ const fetchRecipe = async () => {
     state.recipe.calcServings();
     // render the recipe
     removeLoader();
-    recipeView.renderRecipe(state.recipe);
+    recipeView.renderRecipe(
+      state.recipe,
+      state.like ? state.like.isLiked(id) : false
+    );
   }
 };
 
@@ -92,9 +80,7 @@ const fetchRecipe = async () => {
  * CART CONTROLLER
  */
 const cartControl = () => {
-  if (!state.cart) {
-    state.cart = new Cart();
-  }
+  // state.cart is created/restored on page load
   state.recipe.ingredients.forEach(ingredient => {
     const item = state.cart.addItem(ingredient);
     cartView.renderItem(item);
@@ -105,10 +91,8 @@ const cartControl = () => {
  * LIKE CONTROLLER
  */
 const likeControl = () => {
+  // state.like created/restored on page load, no need to check
   const id = state.recipe.id;
-  if (!state.like) {
-    state.like = new Like();
-  }
   if (state.like.isLiked(id)) {
     state.like.removeLike(id);
     likeView.removeLike(id);
@@ -116,9 +100,68 @@ const likeControl = () => {
     const like = state.like.addLike(state.recipe);
     likeView.renderLike(like);
   }
+  likeView.toggleLikesMenu(state.like.numLikes());
+  likeView.toggleLikeIcon(state.like.isLiked(id));
 };
 
-// event listener for buton clicks in shopping cart
+/**
+ * EVENT LISTENERS
+ *
+ * ON PAGE LOAD/REFRESH
+ * - fetch recipe according to url
+ * - restore previous status from current session or init
+ */
+window.addEventListener('load', () => {
+  // restore recipes list from sessionStorage
+  state.search = new Search();
+  state.search.restore();
+  if (state.search.recipes) {
+    let page = parseInt(sessionStorage.getItem('page'), 10);
+    if (!page) page = 1;
+    searchView.renderRecipes(state.search.recipes, page);
+  }
+  // now we have a chance to highlight current recipe in search list.
+  fetchRecipe();
+  // restore likes from sessionStorage
+  state.like = new Like();
+  state.like.restore();
+  likeView.toggleLikesMenu(state.like.numLikes());
+  state.like.likes.forEach(like => likeView.renderLike(like));
+  // restore cart items from sessionStorage
+  state.cart = new Cart();
+  state.cart.restore();
+  state.cart.items.forEach(item => cartView.renderItem(item));
+});
+
+/**
+ * ON URL CHANGE
+ */
+window.addEventListener('hashchange', fetchRecipe);
+
+/**
+ * events for RECIPES QUERY and LIST
+ */
+elements.searchForm.addEventListener('submit', e => {
+  e.preventDefault(); // so page won't refresh on submit
+  searchRecipes();
+});
+elements.paginationBtnParent.addEventListener('click', e => {
+  // event delegation
+  const btn = e.target.closest('button');
+  if (btn) {
+    const goto = parseInt(btn.dataset.goto);
+    searchView.clearRecipes();
+    searchView.renderRecipes(state.search.recipes, goto);
+    // if some recipe is shown now, highlight it in the list as needed
+    if (state.recipe) {
+      searchView.highlightCurrent(state.recipe.id);
+    }
+  }
+});
+
+/**
+ * event in CART SECTION
+ */
 elements.shoppingCart.addEventListener('click', e => {
   const id = e.target.closest(selectors.shoppingItem).dataset.id;
   if (
@@ -142,13 +185,8 @@ elements.shoppingCart.addEventListener('click', e => {
   }
 });
 
-// event listener for url change and page refresh
-['hashchange', 'load'].forEach(e => {
-  window.addEventListener(e, fetchRecipe);
-});
-
 /**
- * event listeners for:
+ * events in RECIPE DETAIL SECTION
  * - recipe serving change
  * - add to shopping list
  * - like

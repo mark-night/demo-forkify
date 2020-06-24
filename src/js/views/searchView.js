@@ -151,7 +151,7 @@ export const clearRecipes = () => {
   elements.paginationBtnParent.innerHTML = '';
 };
 
-const formatStr = (str, limit = 17) => {
+export const formatStr = (str, limit = 17) => {
   // format str so it's length <= limit, ends with '...' when necessary
   if (str.length > limit) {
     str = str.slice(0, limit - 3) + '...';
@@ -160,12 +160,20 @@ const formatStr = (str, limit = 17) => {
 };
 
 export const highlightCurrent = id => {
-  Array.from(document.querySelectorAll(selectors.recipes)).forEach(el => {
+  const inPageRecipes = document.querySelectorAll(selectors.recipes);
+  // remove all highlight
+  Array.from(inPageRecipes).forEach(el => {
     el.classList.remove(classStrings.recipeHighlight);
   });
-  document
-    .querySelector(selectors.recipes + `[href="#${id}"]`)
-    .classList.add(classStrings.recipeHighlight);
+  // check if current recipe is listed in page (considering pagination), hightlight it if listed
+  const inPage = Array.from(inPageRecipes).some(
+    el => el.getAttribute('href') === `#${id}`
+  );
+  if (inPage) {
+    document
+      .querySelector(selectors.recipes + `[href="#${id}"]`)
+      .classList.add(classStrings.recipeHighlight);
+  }
 };
 
 const renderRecipe = recipe => {
@@ -220,6 +228,6 @@ export const renderRecipes = (recipes, page = 1, perPage = 10) => {
     recipes.slice(start, end).forEach(recipe => renderRecipe(recipe));
     renderPaginationBtns(recipes.length, page, perPage);
     // record which page we are at
-    recipes.page = page;
+    sessionStorage.setItem('page', page.toString());
   }
 };

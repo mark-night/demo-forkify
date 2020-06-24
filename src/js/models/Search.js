@@ -1,22 +1,25 @@
 import axios from 'axios';
 
 export default class Search {
-  constructor(query) {
-    this.query = query;
-  }
-  async getResult() {
+  constructor() {}
+  async getResult(query) {
     try {
       const res = await axios(
-        `https://forkify-api.herokuapp.com/api/search?q=${this.query}`
+        `https://forkify-api.herokuapp.com/api/search?q=${query}`
       );
       this.recipes = res.data.recipes;
-      this.recipes.page = 1;
+      this.save();
     } catch (err) {
       alert(err);
     }
   }
 
-  containsRecipe(id) {
-    return this.recipes.some(recipe => recipe.recipe_id === id);
+  save() {
+    sessionStorage.setItem('recipes', JSON.stringify(this.recipes));
+  }
+
+  restore() {
+    const recipes = JSON.parse(sessionStorage.getItem('recipes'));
+    if (recipes) this.recipes = recipes;
   }
 }

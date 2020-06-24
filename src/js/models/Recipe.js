@@ -77,7 +77,7 @@ export default class Recipe {
         );
       }
       // parse ingredients into count, unit and ingredient itself
-      const matchCount = '(?<count>^\\d+[\\d -/]*)?';
+      const matchCount = '(?<count>^\\d+[\\d -/]* )?';
       const matchUnit = `((?<unit>${Object.values(unit).join('|')}) )?`;
       const matchIngredient = '(?<ingredient>.*)';
       // ? ? * => always matches, so there's no need to check if it was matched

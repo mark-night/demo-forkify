@@ -34,6 +34,7 @@ export default class Cart {
         ingredient: ingredient.ingredient
       };
       this.items.push(newItem);
+      this.save();
       return newItem;
     }
   }
@@ -41,9 +42,20 @@ export default class Cart {
   deleteItem(id) {
     const index = this.items.findIndex(item => item.id === id);
     this.items.splice(index, 1);
+    this.save();
   }
 
   updateCount(id, newCount) {
     this.items.find(item => item.id === id).count = newCount;
+    this.save();
+  }
+
+  save() {
+    sessionStorage.setItem('cartItems', JSON.stringify(this.items));
+  }
+
+  restore() {
+    const items = JSON.parse(sessionStorage.getItem('cartItems'));
+    if (items) this.items = items;
   }
 }
