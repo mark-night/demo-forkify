@@ -5,6 +5,12 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Launch Chrome against static file",
+      "request": "launch",
+      "type": "pwa-chrome",
+      "file": "${workspaceFolder}/docs/index.html"
+    },
+    {
       "type": "chrome",
       "request": "launch",
       "name": "Launch Chrome against localhost",

@@ -4,20 +4,28 @@ export const elements = {
   recipeListParent: document.querySelector('div.results'),
   recipeList: document.querySelector('ul.results__list'),
   paginationBtnParent: document.querySelector('div.results__pages'),
-  recipeDetail: document.querySelector('div.recipe')
+  recipeDetail: document.querySelector('div.recipe'),
+  shoppingCart: document.querySelector('ul.shopping__list'),
+  likesList: document.querySelector('ul.likes__list')
 };
 
 export const selectors = {
   loader: 'div.loader',
   recipes: 'a.results__link',
   recipeServings: 'span.recipe__info-data--people',
-  recipeIngredientCount: 'div#recipe__count-'
+  recipeIngredientCount: 'div#recipe__count-',
+  shoppingCartItemCount: 'input.shopping__count--value',
+  shoppingItem: 'li.shopping__item',
+  btnLike: 'button.recipe__love',
+  likeList: 'ul.likes__list'
 };
 
 export const classStrings = {
   recipeHighlight: 'results__link--active',
   btnIncrease: 'btn-increase',
-  btnDecrease: 'btn-decrease'
+  btnDecrease: 'btn-decrease',
+  btnAddToCart: 'recipe__btn-add',
+  btnRemoveItem: 'shopping__delete'
 };
 
 export const renderLoader = parent => {

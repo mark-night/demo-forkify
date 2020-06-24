@@ -1,13 +1,18 @@
 import Search from './models/Search';
 import Recipe from './models/Recipe';
+import Cart from './models/Cart';
+import Like from './models/Like';
 import {
   elements,
   classStrings,
   renderLoader,
-  removeLoader
+  removeLoader,
+  selectors
 } from './views/base';
 import * as searchView from './views/searchView';
 import * as recipeView from './views/recipeView';
+import * as cartView from './views/cartView';
+import * as likeView from './views/likeView';
 
 /**
  * Global state of the app, easy to be accessed globally
@@ -17,6 +22,7 @@ import * as recipeView from './views/recipeView';
  * - Liked recipes object
  */
 const state = {};
+window.s = state;
 
 /**
  * SEARCH CONTROLLER
@@ -65,7 +71,7 @@ const fetchRecipe = async () => {
   const id = window.location.hash.replace('#', '');
   if (id) {
     // prepare UI
-    if (state.search) {
+    if (state.search && state.search.containsRecipe(id)) {
       searchView.highlightCurrent(id);
     }
     recipeView.clearRecipe();
@@ -82,27 +88,97 @@ const fetchRecipe = async () => {
   }
 };
 
+/**
+ * CART CONTROLLER
+ */
+const cartControl = () => {
+  if (!state.cart) {
+    state.cart = new Cart();
+  }
+  state.recipe.ingredients.forEach(ingredient => {
+    const item = state.cart.addItem(ingredient);
+    cartView.renderItem(item);
+  });
+};
+
+/**
+ * LIKE CONTROLLER
+ */
+const likeControl = () => {
+  const id = state.recipe.id;
+  if (!state.like) {
+    state.like = new Like();
+  }
+  if (state.like.isLiked(id)) {
+    state.like.removeLike(id);
+    likeView.removeLike(id);
+  } else {
+    const like = state.like.addLike(state.recipe);
+    likeView.renderLike(like);
+  }
+};
+
+// event listener for buton clicks in shopping cart
+elements.shoppingCart.addEventListener('click', e => {
+  const id = e.target.closest(selectors.shoppingItem).dataset.id;
+  if (
+    e.target.matches(
+      `.${classStrings.btnRemoveItem}, .${classStrings.btnRemoveItem} *`
+    )
+  ) {
+    // delete button
+    state.cart.deleteItem(id);
+    cartView.removeItem(id);
+  } else if (e.target.matches(selectors.shoppingCartItemCount)) {
+    // the count input bodification
+    const newCount = parseFloat(e.target.value);
+    if (newCount <= 0) {
+      // delete item if count drop to zero
+      state.cart.deleteItem(id);
+      cartView.removeItem(id);
+    } else {
+      state.cart.updateCount(id, newCount);
+    }
+  }
+});
+
 // event listener for url change and page refresh
 ['hashchange', 'load'].forEach(e => {
   window.addEventListener(e, fetchRecipe);
 });
 
-// event listener for servings buttons click
+/**
+ * event listeners for:
+ * - recipe serving change
+ * - add to shopping list
+ * - like
+ */
 elements.recipeDetail.addEventListener('click', e => {
-  let type;
-  if (
-    e.target.matches(
+  const el = e.target;
+  switch (true) {
+    case el.matches(
       `.${classStrings.btnDecrease}, .${classStrings.btnDecrease} *`
-    )
-  ) {
-    type = 'dec';
-  } else if (
-    e.target.matches(
+    ):
+      // recipe serving decrease
+      state.recipe.updateServings('dec');
+      recipeView.updateRecipeDetail(state.recipe);
+      break;
+    case el.matches(
       `.${classStrings.btnIncrease}, .${classStrings.btnIncrease} *`
-    )
-  ) {
-    type = 'inc';
+    ):
+      // recipe serving increase
+      state.recipe.updateServings('inc');
+      recipeView.updateRecipeDetail(state.recipe);
+      break;
+    case el.matches(
+      `.${classStrings.btnAddToCart}, .${classStrings.btnAddToCart} *`
+    ):
+      // add to shopping list
+      cartControl();
+      break;
+    case el.matches(`${selectors.btnLike}, ${selectors.btnLike} *`):
+      // like
+      likeControl();
+      break;
   }
-  state.recipe.updateServings(type);
-  recipeView.updateRecipeDetail(state.recipe);
 });
