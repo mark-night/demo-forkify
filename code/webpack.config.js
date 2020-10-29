@@ -4,18 +4,18 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 module.exports = {
   entry: ['./src/js/index.js'],
   output: {
-    path: path.resolve(__dirname, 'docs'),
-    filename: 'js/bundle.js'
+    path: path.resolve(__dirname, '..'),
+    filename: 'js/bundle.js',
   },
   devServer: {
-    contentBase: './docs'
+    contentBase: './docs',
   },
   // devtool: 'inline-source-map',
   plugins: [
     new HtmlWebpackPlugin({
       filename: 'index.html',
-      template: './src/index.html'
-    })
+      template: './src/index.html',
+    }),
   ],
   module: {
     rules: [
@@ -23,9 +23,9 @@ module.exports = {
         test: /\.m?js$/i,
         exclude: /(node_modules)/,
         use: {
-          loader: 'babel-loader'
-        }
-      }
-    ]
-  }
+          loader: 'babel-loader',
+        },
+      },
+    ],
+  },
 };
