@@ -4,7 +4,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 module.exports = {
   entry: ['./src/js/index.js'],
   output: {
-    path: path.resolve(__dirname, '..'),
+    path: path.resolve(__dirname, '../../static_sites/forkify'),
     filename: 'js/bundle.js',
   },
   devServer: {
